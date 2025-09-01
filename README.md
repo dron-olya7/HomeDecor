@@ -16,8 +16,11 @@
 - Чистый и современный UI
 
 ## Технологии
-- **Angular** 
 
+- **TypeScript**
+- **HTML**
+- **JavaScript**
+- **SCSS**
 
 ## Запуск
 
