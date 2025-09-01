@@ -1,5 +1,6 @@
 @import "../../../assets/styles/mixins";
 
+
 .main {
   background-image: url("../../../assets/images/page/main.png");
   background-repeat: no-repeat;
@@ -159,8 +160,7 @@
 }
 
 .reviews {
-  margin-top: 130px;
-  margin-bottom: 130px;
+  padding: 130px 0;
 
   .container {
 

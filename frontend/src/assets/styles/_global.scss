@@ -16,6 +16,10 @@ html, body {
   font-weight: 400;
 }
 
+main{
+  padding-top: 222px;
+}
+
 a {
   color: inherit;
   text-decoration: none;
@@ -224,3 +228,6 @@ a.button {
   stroke:$green-border-color ;
 }
 
+.login, .signup  {
+  padding-top: 222px;
+}
