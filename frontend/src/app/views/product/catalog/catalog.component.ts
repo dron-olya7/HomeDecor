@@ -1,20 +1,20 @@
-import {Component, OnInit} from '@angular/core';
-import {ProductService} from "../../../shared/services/product.service";
-import {ProductType} from "../../../../types/product.type";
-import {CategoryService} from "../../../shared/services/category.service";
-import {CategoryWithTypeType} from "../../../../types/category-with-type.type";
-import {ActivatedRoute, Router} from "@angular/router";
-import {ActiveParamsType} from "../../../../types/active-params.type";
-import {ActiveParamsUtil} from "../../../shared/utils/active-params.util";
-import {AppliedFilterType} from "../../../../types/applied-filter.type";
-import {SizeVariablesUtil} from "../../../shared/utils/sizeVariables.util";
-import {debounceTime} from "rxjs";
-import {CartService} from "../../../shared/services/cart.service";
-import {CartType} from "../../../../types/cart.type";
-import {FavoriteType} from "../../../../types/favorite.type";
-import {DefaultResponseType} from "../../../../types/default-response.type";
-import {FavoriteService} from "../../../shared/services/favorite.service";
-import {AuthService} from "../../../core/auth/auth.service";
+import { Component, OnInit, ElementRef, HostListener } from '@angular/core';
+import { ProductService } from "../../../shared/services/product.service";
+import { ProductType } from "../../../../types/product.type";
+import { CategoryService } from "../../../shared/services/category.service";
+import { CategoryWithTypeType } from "../../../../types/category-with-type.type";
+import { ActivatedRoute, Router } from "@angular/router";
+import { ActiveParamsType } from "../../../../types/active-params.type";
+import { ActiveParamsUtil } from "../../../shared/utils/active-params.util";
+import { AppliedFilterType } from "../../../../types/applied-filter.type";
+import { SizeVariablesUtil } from "../../../shared/utils/sizeVariables.util";
+import { debounceTime } from "rxjs";
+import { CartService } from "../../../shared/services/cart.service";
+import { CartType } from "../../../../types/cart.type";
+import { FavoriteType } from "../../../../types/favorite.type";
+import { DefaultResponseType } from "../../../../types/default-response.type";
+import { FavoriteService } from "../../../shared/services/favorite.service";
+import { AuthService } from "../../../core/auth/auth.service";
 
 @Component({
   selector: 'app-catalog',
@@ -26,18 +26,17 @@ export class CatalogComponent implements OnInit {
   public product!: ProductType;
   private favoriteProducts: FavoriteType[] = [];
   public categoriesWithTypes: CategoryWithTypeType[] = [];
-  public activeParams: ActiveParamsType = {types: []};
+  public activeParams: ActiveParamsType = { types: [] };
   public appliedFilters: AppliedFilterType[] = [];
   public sortingOpen: boolean = false;
   public sortingOptions: { name: string, value: string }[] = [
-    {name: 'От А до Я', value: 'az-asc'},
-    {name: 'От Я до А', value: 'az-desc'},
-    {name: 'По возрастанию цены', value: 'price-asc'},
-    {name: 'По убыванию цены', value: 'price-desc'},
+    { name: 'От А до Я', value: 'az-asc' },
+    { name: 'От Я до А', value: 'az-desc' },
+    { name: 'По возрастанию цены', value: 'price-asc' },
+    { name: 'По убыванию цены', value: 'price-desc' },
   ];
   public pages: number[] = [];
   public cart: CartType | null = null;
-
 
   constructor(private productService: ProductService,
               private categoryService: CategoryService,
@@ -45,12 +44,23 @@ export class CatalogComponent implements OnInit {
               private cartService: CartService,
               private favoriteService: FavoriteService,
               private authService: AuthService,
-              private router: Router) {
+              private router: Router,
+              private elementRef: ElementRef) {
+  }
 
-    // if (this.activeParams.page === undefined) {
-    //   this.activeParams.page = 1;
-    //   this.navigate()
-    // }
+  @HostListener('document:click', ['$event'])
+  public onClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+
+    // Если клик был на элементе внутри dropdown - игнорируем
+    if (target.closest('.catalog-sorting-body') || target.closest('.catalog-sorting-head')) {
+      return;
+    }
+
+    // Закрываем сортировку при клике вне компонента
+    if (this.sortingOpen) {
+      this.closeSorting();
+    }
   }
 
   public openNextPage(): void {
@@ -59,7 +69,10 @@ export class CatalogComponent implements OnInit {
       this.activeParams.page++;
       this.navigate();
     }
+  }
 
+  public closeSorting(): void {
+    this.sortingOpen = false;
   }
 
   ngOnInit(): void {
@@ -133,7 +146,6 @@ export class CatalogComponent implements OnInit {
           });
         }
         this.productService.getProducts(this.activeParams).subscribe(data => {
-
           this.pages = [];
           for (let i = 1; i <= data.pages; i++) {
             this.pages.push(i);
@@ -169,17 +181,24 @@ export class CatalogComponent implements OnInit {
     } else {
       this.activeParams.types = this.activeParams.types.filter(item => item !== appliedFilter.urlParam);
     }
-    // this.activeParams.page = 1;
     console.log(this.activeParams.page);
     this.navigate();
   }
 
-  public toggleSorting(): void {
+  public toggleSorting(event?: Event): void {
+    if (event) {
+      event.stopPropagation(); // предотвращаем всплытие
+    }
     this.sortingOpen = !this.sortingOpen;
   }
 
-  public sort(value: string): void {
+  public sort(value: string, event?: Event): void {
+    if (event) {
+      event.stopPropagation(); // предотвращаем всплытие события
+    }
+
     this.activeParams.sort = value;
+    this.closeSorting(); // закрываем dropdown после выбора
     this.navigate();
   }
 
