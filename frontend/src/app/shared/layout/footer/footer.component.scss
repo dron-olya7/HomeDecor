@@ -43,6 +43,10 @@
             a {
 
             }
+            a:hover{
+              color: #315631;
+              transition: .5s;
+            }
           }
         }
       }
@@ -111,6 +115,11 @@
           }
         }
       }
+    }
+
+    svg:hover path{
+      fill: #315631;
+      transition: .5s;
     }
   }
 }
